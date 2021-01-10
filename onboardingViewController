@@ -1,0 +1,85 @@
+import UIKit
+
+protocol onboardingDelegate {
+    func showMainTabBarController()
+}
+
+class onboardingViewController: UIViewController {
+
+    @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var descriptionLabel: UILabel!
+    @IBOutlet weak var pageControl: UIPageControl!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupViews()
+        setUpPageControl()
+        setUpCollectionView()
+    }
+    
+    private func setUpCollectionView () {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        collectionView.backgroundColor = .systemGroupedBackground
+        collectionView.collectionViewLayout = layout
+        collectionView.isPagingEnabled = true
+        collectionView.showsHorizontalScrollIndicator = false
+    
+    }
+    
+    private func setUpPageControl () {
+        pageControl.numberOfPages = slide.collection.count
+    }
+    
+    private func setupViews () {
+        view.backgroundColor = .systemGroupedBackground
+    }
+    
+    @IBAction func gettingStartedButtonTapped (_ sender: UIButton) {
+        performSegue(withIdentifier: K.segue.ShowLoginSignUp, sender: nil)
+    }
+    
+    private func showCaption(atIndex index: Int) {
+        let slideCaption = slide.collection[index]
+        titleLabel.text = slideCaption.title
+        descriptionLabel.text = slideCaption.description
+    }
+}
+
+extension onboardingViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return slide.collection.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cellId", for: indexPath) as! onboardingCollectionViewCell
+        let imageName = slide.collection[indexPath.item].imageName
+        let image = UIImage(named: imageName) ?? UIImage()
+        cell.configure(image: image)
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return collectionView.frame.size
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let index = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
+        showCaption(atIndex: index)
+        pageControl.currentPage = index
+    }
+}
+
+extension onboardingViewController: onboardingDelegate {
+    func showMainTabBarController () {
+    
+     PresenterManager.share // PresenterManager not in scope error message appearing.
+    
+    }
+}
